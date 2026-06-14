@@ -6,6 +6,9 @@ on:
   pull_request:
   workflow_dispatch:
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   compose-check:
     name: Validate Docker Compose Stack
@@ -34,38 +37,54 @@ jobs:
       - name: Lint docker-compose.yml
         run: docker compose config --quiet
 
-      # 5. Build & start stack, đợi healthcheck pass (--wait)
+      # 5. Build & start stack (không dùng --wait vì curl không có sẵn trong slim image)
       - name: Build and start Compose stack
-        run: docker compose up -d --build --wait
+        run: docker compose up -d --build
+
+      # 6. Đợi API /health trả 200 (retry loop, dùng curl của host Ubuntu)
+      - name: Wait for API /health (port 8000)
+        run: |
+          echo "Waiting for API to be healthy..."
+          for i in $(seq 1 24); do
+            if curl -fsS http://localhost:8000/health; then
+              echo "API is healthy!"
+              exit 0
+            fi
+            echo "Attempt $i/24 - not ready yet, sleeping 5s..."
+            sleep 5
+          done
+          echo "--- API logs ---"
+          docker compose logs api
+          exit 1
+
+      # 7. Smoke test AI /health
+      - name: Wait for AI service /health (port 9000)
+        run: |
+          echo "Waiting for AI service to be healthy..."
+          for i in $(seq 1 24); do
+            if curl -fsS http://localhost:9000/health; then
+              echo "AI service is healthy!"
+              exit 0
+            fi
+            echo "Attempt $i/24 - not ready yet, sleeping 5s..."
+            sleep 5
+          done
+          echo "--- AI service logs ---"
+          docker compose logs ai-service
+          exit 1
+
+      # 8. Test DB readiness (pg_isready)
+      - name: Test DB readiness (pg_isready)
+        run: |
+          PGUSER=$(grep '^POSTGRES_USER=' .env | cut -d= -f2)
+          PGUSER="${PGUSER:-lab05}"
+          echo "Checking pg_isready for user: $PGUSER"
+          docker compose exec -T db pg_isready -U "$PGUSER"
 
       - name: Show running containers
         run: docker compose ps
 
-      # 6. Smoke test các endpoint /health
-      - name: Test API /health (port 8000)
-        run: |
-          for i in 1 2 3 4 5; do
-            curl -fsS http://localhost:8000/health && exit 0
-            echo "Retry $i..."; sleep 5
-          done
-          docker compose logs api
-          exit 1
-
-      - name: Test AI service /health (port 9000)
-        run: |
-          for i in 1 2 3 4 5; do
-            curl -fsS http://localhost:9000/health && exit 0
-            echo "Retry $i..."; sleep 5
-          done
-          docker compose logs ai-service
-          exit 1
-
-      - name: Test DB readiness (pg_isready)
-        run: |
-          set -a; source .env; set +a
-          docker compose exec -T db pg_isready -U "$POSTGRES_USER"
-
-      # 7. Chạy Newman test nếu có collection
+      # 9. Chạy Newman test nếu có collection
       - name: Run Newman collection
         run: |
           mkdir -p reports
@@ -73,7 +92,7 @@ jobs:
           ENVIRONMENT=$(find postman/environments -maxdepth 2 -name "*.postman_environment.json" | head -n 1)
 
           if [ -z "$COLLECTION" ]; then
-            echo "::warning::Không tìm thấy Postman collection trong postman/ - bỏ qua bước Newman"
+            echo "::warning::Không tìm thấy Postman collection - bỏ qua bước Newman"
             exit 0
           fi
 
@@ -86,7 +105,7 @@ jobs:
             --reporter-junit-export reports/newman-lab05-compose.xml \
             --reporter-htmlextra-export reports/newman-lab05-compose.html
 
-      # 8. Kiểm tra readiness checklist (yêu cầu tối thiểu 6 mục đã tick)
+      # 10. Kiểm tra readiness checklist (tối thiểu 6 mục đã tick)
       - name: Verify readiness checklist
         run: |
           CHECKLIST="checklists/readiness-checklist.md"
@@ -95,17 +114,18 @@ jobs:
             exit 1
           fi
 
-          TOTAL=$(grep -cE '^[[:space:]]*-[[:space:]]*\[[ xX]\]' "$CHECKLIST" || true)
-          CHECKED=$(grep -cE '^[[:space:]]*-[[:space:]]*\[[xX]\]' "$CHECKLIST" || true)
+          CHECKED=$(grep -cE '^\s*-\s*\[[xX]\]' "$CHECKLIST" || true)
 
-          echo "Readiness checklist: ${CHECKED:-0}/${TOTAL:-0} mục đã tick"
+          echo "Readiness checklist: ${CHECKED:-0} mục đã tick"
 
           if [ "${CHECKED:-0}" -lt 6 ]; then
             echo "::error::Lab yêu cầu tối thiểu 6 mục readiness, hiện có ${CHECKED:-0}"
             exit 1
           fi
 
-      # 9. Upload report làm artifact để tải về
+          echo "✅ Checklist OK: ${CHECKED} mục đã tick"
+
+      # 11. Upload report làm artifact
       - name: Upload Newman reports
         if: always()
         uses: actions/upload-artifact@v4
@@ -114,12 +134,12 @@ jobs:
           path: reports/
           if-no-files-found: warn
 
-      # 10. Dump log khi fail để debug
+      # 12. Dump log khi fail để debug
       - name: Dump Compose logs on failure
         if: failure()
         run: docker compose logs
 
-      # 11. Cleanup
+      # 13. Cleanup
       - name: Tear down Compose stack
         if: always()
         run: docker compose down -v
