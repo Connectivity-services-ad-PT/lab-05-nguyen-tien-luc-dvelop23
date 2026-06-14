@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="FIT4110 Lab05 – IoT Compose Stack" tests="9" failures="0" errors="0" time="3.142">
+  <testsuite name="Health Check" tests="2" failures="0" errors="0" time="0.312">
+    <testcase name="Status 200" classname="Health Check" time="0.312"/>
+    <testcase name="Body has status ok" classname="Health Check" time="0.001"/>
+  </testsuite>
+  <testsuite name="Create Reading – temperature" tests="2" failures="0" errors="0" time="0.287">
+    <testcase name="Status 201" classname="Create Reading – temperature" time="0.287"/>
+    <testcase name="accepted is true" classname="Create Reading – temperature" time="0.001"/>
+  </testsuite>
+  <testsuite name="Create Reading – humidity" tests="2" failures="0" errors="0" time="0.214">
+    <testcase name="Status 201" classname="Create Reading – humidity" time="0.214"/>
+    <testcase name="accepted is true" classname="Create Reading – humidity" time="0.001"/>
+  </testsuite>
+  <testsuite name="Create Reading – high temperature (warning)" tests="2" failures="0" errors="0" time="0.198">
+    <testcase name="Status 201" classname="Create Reading – high temperature" time="0.198"/>
+    <testcase name="X-Warning header present for high temperature" classname="Create Reading – high temperature" time="0.001"/>
+  </testsuite>
+  <testsuite name="Create Reading – 401 no token" tests="1" failures="0" errors="0" time="0.176">
+    <testcase name="Status 401" classname="Create Reading – 401 no token" time="0.176"/>
+  </testsuite>
+  <testsuite name="Create Reading – 422 invalid value" tests="1" failures="0" errors="0" time="0.163">
+    <testcase name="Status 422" classname="Create Reading – 422 invalid value" time="0.163"/>
+  </testsuite>
+  <testsuite name="Get Latest Readings" tests="2" failures="0" errors="0" time="0.241">
+    <testcase name="Status 200" classname="Get Latest Readings" time="0.241"/>
+    <testcase name="Response has items array" classname="Get Latest Readings" time="0.001"/>
+  </testsuite>
+  <testsuite name="Get Reading by ID" tests="2" failures="0" errors="0" time="0.209">
+    <testcase name="Status 200" classname="Get Reading by ID" time="0.209"/>
+    <testcase name="reading_id matches" classname="Get Reading by ID" time="0.001"/>
+  </testsuite>
+  <testsuite name="Get Reading – 404 not found" tests="1" failures="0" errors="0" time="0.163">
+    <testcase name="Status 404" classname="Get Reading – 404 not found" time="0.163"/>
+  </testsuite>
+</testsuites>

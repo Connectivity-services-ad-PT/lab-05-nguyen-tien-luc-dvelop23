@@ -1,0 +1,358 @@
+{
+  "info": {
+    "_postman_id": "fit4110-lab05-collection",
+    "name": "FIT4110 Lab05 – IoT Compose Stack",
+    "description": "Postman collection for end-to-end testing of the Lab 05 Docker Compose stack.\nTests: /health, POST /readings, GET /readings/latest, GET /readings/{id}.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "fit4110"
+  },
+  "item": [
+    {
+      "name": "Health Check",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test('Body has status ok', function () {",
+              "    var json = pm.response.json();",
+              "    pm.expect(json.status).to.eql('ok');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/health",
+          "host": ["{{baseUrl}}"],
+          "path": ["health"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Create Reading – temperature",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status 201', function () {",
+              "    pm.response.to.have.status(201);",
+              "});",
+              "pm.test('accepted is true', function () {",
+              "    var json = pm.response.json();",
+              "    pm.expect(json.accepted).to.be.true;",
+              "    pm.collectionVariables.set('lastReadingId', json.reading_id);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{authToken}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"device_id\": \"ESP32-LAB-A01\",\n  \"metric\": \"temperature\",\n  \"value\": 31.5,\n  \"unit\": \"celsius\",\n  \"timestamp\": \"2026-06-14T08:00:00+07:00\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/readings",
+          "host": ["{{baseUrl}}"],
+          "path": ["readings"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Create Reading – humidity",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status 201', function () {",
+              "    pm.response.to.have.status(201);",
+              "});",
+              "pm.test('accepted is true', function () {",
+              "    var json = pm.response.json();",
+              "    pm.expect(json.accepted).to.be.true;",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{authToken}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"device_id\": \"ESP32-LAB-A02\",\n  \"metric\": \"humidity\",\n  \"value\": 65.0,\n  \"unit\": \"percent\",\n  \"timestamp\": \"2026-06-14T08:01:00+07:00\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/readings",
+          "host": ["{{baseUrl}}"],
+          "path": ["readings"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Create Reading – high temperature (warning)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status 201', function () {",
+              "    pm.response.to.have.status(201);",
+              "});",
+              "pm.test('X-Warning header present for high temperature', function () {",
+              "    pm.expect(pm.response.headers.get('X-Warning')).to.eql('high-temperature');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{authToken}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"device_id\": \"ESP32-LAB-A01\",\n  \"metric\": \"temperature\",\n  \"value\": 75.0,\n  \"unit\": \"celsius\",\n  \"timestamp\": \"2026-06-14T08:02:00+07:00\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/readings",
+          "host": ["{{baseUrl}}"],
+          "path": ["readings"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Create Reading – 401 no token",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status 401', function () {",
+              "    pm.response.to.have.status(401);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"device_id\": \"ESP32-LAB-A01\",\n  \"metric\": \"temperature\",\n  \"value\": 25.0,\n  \"unit\": \"celsius\",\n  \"timestamp\": \"2026-06-14T08:03:00+07:00\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/readings",
+          "host": ["{{baseUrl}}"],
+          "path": ["readings"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Create Reading – 422 invalid value",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status 422', function () {",
+              "    pm.response.to.have.status(422);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{authToken}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"device_id\": \"ESP32-LAB-A01\",\n  \"metric\": \"temperature\",\n  \"value\": 999,\n  \"unit\": \"celsius\",\n  \"timestamp\": \"2026-06-14T08:04:00+07:00\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/readings",
+          "host": ["{{baseUrl}}"],
+          "path": ["readings"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Get Latest Readings",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test('Response has items array', function () {",
+              "    var json = pm.response.json();",
+              "    pm.expect(json).to.have.property('items');",
+              "    pm.expect(json.items).to.be.an('array');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{authToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/readings/latest?limit=10",
+          "host": ["{{baseUrl}}"],
+          "path": ["readings", "latest"],
+          "query": [
+            {
+              "key": "limit",
+              "value": "10"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Get Reading by ID",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test('reading_id matches', function () {",
+              "    var json = pm.response.json();",
+              "    pm.expect(json.reading_id).to.eql(pm.collectionVariables.get('lastReadingId'));",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{authToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/readings/{{lastReadingId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["readings", "{{lastReadingId}}"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Get Reading – 404 not found",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status 404', function () {",
+              "    pm.response.to.have.status(404);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{authToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/readings/R-NONEXISTENT-0000",
+          "host": ["{{baseUrl}}"],
+          "path": ["readings", "R-NONEXISTENT-0000"]
+        }
+      },
+      "response": []
+    }
+  ],
+  "variable": [
+    {
+      "key": "lastReadingId",
+      "value": ""
+    }
+  ]
+}

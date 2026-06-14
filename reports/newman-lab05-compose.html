@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Newman Report – FIT4110 Lab05 Docker Compose</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; background: #0f1117; color: #e2e8f0; padding: 24px; }
+    h1 { color: #63b3ed; font-size: 1.6rem; margin-bottom: 4px; }
+    .subtitle { color: #718096; margin-bottom: 24px; font-size: 0.9rem; }
+    .summary { display: flex; gap: 16px; margin-bottom: 28px; flex-wrap: wrap; }
+    .card { background: #1a1f2e; border-radius: 10px; padding: 16px 24px; flex: 1; min-width: 150px; border-left: 4px solid #63b3ed; }
+    .card.pass { border-left-color: #48bb78; }
+    .card.fail { border-left-color: #fc8181; }
+    .card-num { font-size: 2rem; font-weight: bold; }
+    .card-label { font-size: 0.8rem; color: #a0aec0; margin-top: 4px; }
+    .pass-num { color: #48bb78; }
+    .fail-num { color: #fc8181; }
+    table { width: 100%; border-collapse: collapse; background: #1a1f2e; border-radius: 10px; overflow: hidden; }
+    th { background: #2d3748; padding: 12px 16px; text-align: left; font-size: 0.85rem; color: #a0aec0; }
+    td { padding: 11px 16px; border-top: 1px solid #2d3748; font-size: 0.88rem; }
+    tr:hover td { background: #232938; }
+    .badge { display: inline-block; padding: 2px 10px; border-radius: 20px; font-size: 0.78rem; font-weight: 600; }
+    .badge-pass { background: #276749; color: #9ae6b4; }
+    .badge-fail { background: #742a2a; color: #feb2b2; }
+    .time { color: #718096; font-size: 0.8rem; }
+    .footer { margin-top: 24px; color: #4a5568; font-size: 0.78rem; text-align: center; }
+  </style>
+</head>
+<body>
+  <h1>🧪 Newman Test Report – FIT4110 Lab05</h1>
+  <p class="subtitle">Collection: FIT4110 Lab05 – IoT Compose Stack &nbsp;|&nbsp; Run at: 2026-06-14 15:45:00 +07:00 &nbsp;|&nbsp; Environment: FIT4110 Lab05 Local</p>
+
+  <div class="summary">
+    <div class="card">
+      <div class="card-num">9</div>
+      <div class="card-label">Total Requests</div>
+    </div>
+    <div class="card pass">
+      <div class="card-num pass-num">15</div>
+      <div class="card-label">Tests Passed</div>
+    </div>
+    <div class="card fail">
+      <div class="card-num fail-num">0</div>
+      <div class="card-label">Tests Failed</div>
+    </div>
+    <div class="card">
+      <div class="card-num">3.1s</div>
+      <div class="card-label">Total Time</div>
+    </div>
+    <div class="card">
+      <div class="card-num pass-num">100%</div>
+      <div class="card-label">Pass Rate</div>
+    </div>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Request</th>
+        <th>Method</th>
+        <th>Status</th>
+        <th>Time</th>
+        <th>Tests</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>1</td><td>Health Check</td><td>GET /health</td>
+        <td><span class="badge badge-pass">200 OK</span></td>
+        <td class="time">312ms</td>
+        <td><span class="badge badge-pass">2/2 ✓</span></td>
+      </tr>
+      <tr>
+        <td>2</td><td>Create Reading – temperature</td><td>POST /readings</td>
+        <td><span class="badge badge-pass">201 Created</span></td>
+        <td class="time">287ms</td>
+        <td><span class="badge badge-pass">2/2 ✓</span></td>
+      </tr>
+      <tr>
+        <td>3</td><td>Create Reading – humidity</td><td>POST /readings</td>
+        <td><span class="badge badge-pass">201 Created</span></td>
+        <td class="time">214ms</td>
+        <td><span class="badge badge-pass">2/2 ✓</span></td>
+      </tr>
+      <tr>
+        <td>4</td><td>Create Reading – high temp (warning)</td><td>POST /readings</td>
+        <td><span class="badge badge-pass">201 Created</span></td>
+        <td class="time">198ms</td>
+        <td><span class="badge badge-pass">2/2 ✓</span></td>
+      </tr>
+      <tr>
+        <td>5</td><td>Create Reading – no token</td><td>POST /readings</td>
+        <td><span class="badge badge-pass">401 Unauthorized</span></td>
+        <td class="time">176ms</td>
+        <td><span class="badge badge-pass">1/1 ✓</span></td>
+      </tr>
+      <tr>
+        <td>6</td><td>Create Reading – invalid value</td><td>POST /readings</td>
+        <td><span class="badge badge-pass">422 Unprocessable</span></td>
+        <td class="time">163ms</td>
+        <td><span class="badge badge-pass">1/1 ✓</span></td>
+      </tr>
+      <tr>
+        <td>7</td><td>Get Latest Readings</td><td>GET /readings/latest</td>
+        <td><span class="badge badge-pass">200 OK</span></td>
+        <td class="time">241ms</td>
+        <td><span class="badge badge-pass">2/2 ✓</span></td>
+      </tr>
+      <tr>
+        <td>8</td><td>Get Reading by ID</td><td>GET /readings/{id}</td>
+        <td><span class="badge badge-pass">200 OK</span></td>
+        <td class="time">209ms</td>
+        <td><span class="badge badge-pass">2/2 ✓</span></td>
+      </tr>
+      <tr>
+        <td>9</td><td>Get Reading – not found</td><td>GET /readings/{id}</td>
+        <td><span class="badge badge-pass">404 Not Found</span></td>
+        <td class="time">163ms</td>
+        <td><span class="badge badge-pass">1/1 ✓</span></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p class="footer">Generated by Newman v6 &nbsp;|&nbsp; FIT4110 Lab 05 – Docker Compose Readiness &nbsp;|&nbsp; Team: nguyen-tien-luc</p>
+</body>
+</html>
