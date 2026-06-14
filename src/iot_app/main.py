@@ -1,3 +1,4 @@
+import http.client
 import os
 from datetime import datetime, timezone
 from enum import Enum
@@ -7,6 +8,9 @@ from fastapi import Depends, FastAPI, Header, HTTPException, Query, Request, Res
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
+
+# Dùng http.client.responses thay cho status.HTTP_STATUS_CODES (đã bị xoá trong Starlette mới)
+_HTTP_STATUS_PHRASES = http.client.responses
 
 # Đọc biến môi trường với giá trị mặc định
 SERVICE_NAME = os.getenv("SERVICE_NAME", "iot-ingestion")
@@ -119,7 +123,7 @@ async def http_exception_handler(request: Request, exc: HTTPException) -> JSONRe
         )
 
     problem.setdefault("status", exc.status_code)
-    problem.setdefault("title", status.HTTP_STATUS_CODES.get(exc.status_code, "HTTP Error"))
+    problem.setdefault("title", _HTTP_STATUS_PHRASES.get(exc.status_code, "HTTP Error"))
     problem.setdefault("type", "about:blank")
     problem.setdefault("detail", "Request failed")
     problem.setdefault("instance", str(request.url.path))
